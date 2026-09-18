@@ -1,0 +1,58 @@
+services:
+
+  mongodb:
+    image: mongo:7.0
+    container_name: healthcare_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "27017:27017"
+    volumes:
+      # Volume nommé : persistance des données MongoDB (survit au docker-compose down)
+      - mongo-data:/data/db
+      # Script d'init : création de la base + des utilisateurs/rôles au 1er démarrage
+      - ./mongo-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - healthcare-net
+
+  migration:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: healthcare_migration
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_DB: ${MONGO_DB}
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_AUTH_SOURCE: ${MONGO_AUTH_SOURCE}
+      CSV_PATH: /data/healthcare_dataset.csv
+      BATCH_SIZE: ${BATCH_SIZE}
+    volumes:
+      # Volume "bind mount" en lecture seule : expose le CSV source au conteneur
+      - ./data:/data:ro
+      # Volume nommé : conserve les logs et le rapport de migration
+      - migration-logs:/app/logs
+    networks:
+      - healthcare-net
+
+volumes:
+  mongo-data:
+    name: healthcare_mongo_data
+  migration-logs:
+    name: healthcare_migration_logs
+
+networks:
+  healthcare-net:
+    driver: bridge
