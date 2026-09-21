@@ -40,11 +40,14 @@ de ce projet est de :
 | Medication            | texte       | Paracetamol                |
 | Test Results          | texte       | Normal / Abnormal / Inconclusive |
 
-Constats du diagnostic initial (voir `data_quality.py`) : 
+Constats du diagnostic initial (voir 'data/Bideau_Benjamin_5_Pre_analyse_données_09_2026.ipynb' pour la pré analyse des données) : 
 - aucune valeur manquante, 
-- 534 lignes strictement dupliquées
-- 40
-Ces deux derniers points sont corrigés lors de l'étape de nettoyage.
+- 534 lignes strictement dupliquées (à retirer)
+- 4 966 patients avec des données identiques sauf pour l'âge (doublon à retirer)
+- 7 patients homonymes (avec le même nom mais des données biométriques et hospitalières différentes) (à garder)
+- 96 prix négatifs dans la facturation (à retirer)
+
+Ces points sont corrigés lors de l'étape de nettoyage.
 
 ---
 
