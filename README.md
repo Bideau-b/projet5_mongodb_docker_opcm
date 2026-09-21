@@ -123,16 +123,16 @@ il est recommandé de :
 ## 5. Architecture des conteneurs
 
 ```
-┌─────────────────────────┐        ┌──────────────────────────────┐
-│   Conteneur "mongodb"    │        │   Conteneur "migration"       │
-│   image: mongo:7.0       │◄───────┤   image: build (Dockerfile)   │
-│   - authentification     │  réseau│   - Python 3.11 + pandas      │
-│   - init-mongo.js        │ "healthcare-net"│   - pymongo               │
-│   port 27017 exposé      │        │   - script migrate.py         │
-└──────────┬───────────────┘        └───────────────┬────────────────┘
-           │ volume nommé                            │ bind mount (lecture seule)
-           ▼                                          ▼
-   mongo-data (persistance BDD)              ./data/healthcare_dataset.csv
+┌──────────────────────────┐                 ┌───────────────────────────────┐
+│   Conteneur "mongodb"    │                 │   Conteneur "migration"       │
+│   image: mongo:7.0       │◄────────────────┤   image: build (Dockerfile)   │
+│   - authentification     │  réseau         │   - Python 3.11 + pandas      │
+│   - init-mongo.js        │ "healthcare-net"│   - pymongo                   │
+│   port 27017 exposé      │                 │   - script migrate.py         │
+└──────────┬───────────────┘                 └───────────────┬───────────────┘
+           │ volume nommé                                    │ lecture seule
+           ▼                                                 ▼
+      mongo-data                              ./data/healthcare_dataset.csv
                                               volume nommé : migration-logs
 ```
 
